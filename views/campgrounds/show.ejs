@@ -1,8 +1,11 @@
 <% layout('layouts/boilerplate')%>
 <link rel="stylesheet" href="/stylesheets/stars.css">
 
+
+
 <div class="row">
     <div class="col-6">
+        <div id='map' class="mb-3" style='width: 600px; height: 250px;'></div>
         <div class="card mb-3">
             <img src="<%= campground.image%>" class="card-img-top" alt="...">
             <div class="card-body">
@@ -79,3 +82,29 @@
         <% } %>
     </div>
 </div>
+
+<script>
+    const campground = <%- JSON.stringify(campground) %>
+  mapboxgl.accessToken =
+	'pk.eyJ1Ijoia3N0b25lNSIsImEiOiJja3g3bWprbWMyeGhlMnZwMmhrbGI5ZnNlIn0.H7lcVXyk7FAE1vgbP37m5Q';
+const map = new mapboxgl.Map({
+	container: 'map', // container ID
+	style: 'mapbox://styles/mapbox/streets-v11', // style URL
+	center: campground.geometry.coordinates, // starting position [lng, lat]
+	zoom: 10, // starting zoom
+});
+
+new mapboxgl.Marker()
+.setLngLat(campground.geometry.coordinates)
+.setPopup(
+    new mapboxgl.Popup({offset: 25})
+    .setHTML(
+        `<h3>${campground.title}</h3><p>${campground.location}</p>`
+    )
+)
+.addTo(map)
+
+
+</script>
+
+<script src="/public/javascripts/showPageMap.js"></script>

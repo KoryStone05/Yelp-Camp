@@ -2,7 +2,6 @@ const Campground = require('../models/campground');
 const mapBoxToken =
 	'pk.eyJ1Ijoia3N0b25lNSIsImEiOiJja3g3bWprbWMyeGhlMnZwMmhrbGI5ZnNlIn0.H7lcVXyk7FAE1vgbP37m5Q';
 const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
-// const mbxGeocoding = `https://api.mapbox.com/tokens/v2/kstone5?access_token=${mapBoxToken}`;
 const geocoder = mbxGeocoding({ accessToken: mapBoxToken });
 
 console.log(process.env.MAPBOX_TOKEN);
@@ -19,17 +18,17 @@ module.exports.renderNewForm = (req, res) => {
 module.exports.createCampground = async (req, res, next) => {
 	const geoData = await geocoder
 		.forwardGeocode({
-			query: 'Yosemite, CA',
+			query: req.body.campground.location,
 			limit: 1,
 		})
 		.send();
-	console.log(geoData);
-	res.send('OK!!!');
-	// const campground = new Campground(req.body.campground);
-	// campground.author = req.user._id;
-	// await campground.save();
-	// req.flash('success', 'Successfully made a new campground!');
-	// res.redirect(`/campgrounds/${campground._id}`);
+	const campground = new Campground(req.body.campground);
+	campground.geometry = geoData.body.features[0].geometry;
+	campground.author = req.user._id;
+	await campground.save();
+	console.log(campground);
+	req.flash('success', 'Successfully made a new campground!');
+	res.redirect(`/campgrounds/${campground._id}`);
 };
 
 module.exports.showCampground = async (req, res) => {
